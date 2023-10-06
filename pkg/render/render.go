@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"myGoWebApp/pkg/config"
+	"myGoWebApp/pkg/models"
 	"net/http"
 	"path/filepath"
 )
@@ -16,7 +17,12 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
+func AddDefaultData(td *models.TemplateData) *models.TemplateData {
+	return td
+}
+
+// td is template data
+func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
 	if app.UseCache {
 		// get the template cache from the app config
@@ -35,7 +41,9 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 
 	// these buf and err are arbitrary, up to you
 	buf := new(bytes.Buffer)
-	err := t.Execute(buf, nil)
+	td = AddDefaultData(td)
+
+	err := t.Execute(buf, td)
 	if err != nil {
 		log.Println(err)
 	}
